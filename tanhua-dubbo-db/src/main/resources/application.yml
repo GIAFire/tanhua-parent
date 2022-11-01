@@ -1,0 +1,27 @@
+spring:
+  datasource: #数据库连接池
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/tanhua?useUnicode=true&characterEncoding=utf8&useSSL=false
+    username: root
+    password: root
+  application:
+    name: tanhua-dubbo-db # 服务名称
+  cloud:
+    nacos:
+      discovery: # 连接nacos注册中心
+        server-addr: 192.168.211.160:8848
+
+mybatis-plus:
+  global-config:
+    db-config:
+      table-prefix: tb_   # 表名前缀
+      id-type: auto   # id策略为mysql自增
+
+dubbo:
+  protocol:
+    name: dubbo
+    port: 20881
+  registry:
+    address: spring-cloud://localhost # 使用springCloud alibaba地址
+  scan:
+    base-packages: com.itheima.service.db

@@ -1,0 +1,22 @@
+spring:
+  application: # 应用名称
+    name: tanhua-dubbo-mongo
+  cloud:
+    nacos:  # 配置注册中心
+      discovery:
+        server-addr: 192.168.211.160:8848
+  data:
+    mongodb: # 配置mongo
+      uri: mongodb://192.168.211.160:27017/tanhua
+  redis: # 配置redis
+    host: 192.168.211.160
+    port: 6379
+    database: 1
+dubbo: # 配置dubbo
+  protocol:
+    name: dubbo
+    port: 20882
+  registry:
+    address: spring-cloud://localhost
+  scan:
+    base-packages: com.itheima.service.mongo

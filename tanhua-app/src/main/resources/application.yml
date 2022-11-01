@@ -1,0 +1,41 @@
+server: #服务端口
+  port: 18080
+spring:
+  application:
+    name: tanhua-app
+  redis:  #redis配置
+    port: 6379
+    host: 192.168.211.160
+  cloud:  #nacos配置
+    nacos:
+      discovery:
+        server-addr: 192.168.211.160:8848
+  servlet:
+    multipart:
+      max-file-size: 300MB
+      max-request-size: 300MB
+dubbo:    #dubbo配置
+  registry:
+    address: spring-cloud://localhost
+    check: false
+  consumer:
+    check: false
+    timeout: 50000000
+    retries: 0
+
+tanhua:
+  sms:
+    access-key: LTAI5t6rL4crEU47uX483JKz
+    secret: ZCxHdtyE8W203OYG9FqAiOIQAxJIMI
+    sign-name: 黑马Ys
+    template-code: SMS_199773239
+  oss:
+    accessKey: LTAI5tNjQKmXmYQLV8dtDmxg
+    secret: cKpebYNdwy7Q3bULl6WODqWuJ6V5z3
+    endpoint: oss-cn-beijing.aliyuncs.com
+    bucketName: ttmall-file
+    url: ttmall-file.oss-cn-beijing.aliyuncs.com
+  aip:
+    appId: 27962994
+    apiKey: Cc2ROcO9yBttZy41KlDiiNR5
+    secretKey: wDNF4SPPAHF2a95G7YpXGffhPhajwdcq
