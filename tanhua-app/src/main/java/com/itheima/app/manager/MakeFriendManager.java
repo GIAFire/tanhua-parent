@@ -4,14 +4,17 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.itheima.app.interceptor.UserHolder;
+import com.itheima.domain.db.Question;
 import com.itheima.domain.db.UserInfo;
 import com.itheima.domain.mongo.RecommendUser;
 import com.itheima.domain.mongo.Visitor;
+import com.itheima.service.db.QuestionService;
 import com.itheima.service.db.UserInfoService;
 import com.itheima.service.mongo.RecommendUserService;
 import com.itheima.service.mongo.UserLocationService;
 import com.itheima.service.mongo.VisitorService;
 import com.itheima.util.ConstantUtil;
+import com.itheima.vo.NearUserVo;
 import com.itheima.vo.PageBeanVo;
 import com.itheima.vo.RecommendUserVo;
 import com.itheima.vo.VisitorVo;
@@ -167,5 +170,53 @@ public class MakeFriendManager {
         // 2.调用rpc保存
         userLocationService.saveLocation(longitude, latitude, addrStr, userId);
 
+    }
+
+    // 搜附近
+    public ResponseEntity searchNearUserVo(String gender, Long distance) {
+        // 1.获取线程内userId
+        Long userId = UserHolder.get().getId();
+        // 2.调用rpc查询附近的人
+        List<Long> nearUserIdList = userLocationService.searchNearUserId(userId, distance);
+        // 3.遍历
+        List<NearUserVo> voList = new ArrayList<>();
+        if (CollectionUtil.isNotEmpty(nearUserIdList)) {
+            for (Long nearUserId : nearUserIdList) {
+                // 排除自己
+                if (userId == nearUserId) {
+                    continue;
+                }
+                // 查询userInfo
+                UserInfo userInfo = userInfoService.findById(nearUserId);
+                // 排除异性
+                if (!StrUtil.equals(gender, userInfo.getGender())) {
+                    continue;
+                }
+                // 封装vo
+                NearUserVo vo = new NearUserVo();
+                vo.setUserId(userInfo.getId());
+                vo.setNickname(userInfo.getNickname());
+                vo.setAvatar(userInfo.getAvatar());
+                // 添加集合
+                voList.add(vo);
+            }
+        }
+        // 4.返回voList
+        return ResponseEntity.ok(voList);
+    }
+
+    @DubboReference
+    private QuestionService questionService;
+
+    // 查看陌生人问题
+    public ResponseEntity strangerQuestions(Long jiarenId) {
+        // 1.查询
+        Question question = questionService.findByUserId(jiarenId);
+        // 2.空值判断
+        if (question==null) {
+            question = new Question(); // 默认值
+        }
+        // 3.返回结果
+        return ResponseEntity.ok(question.getStrangerQuestion());
     }
 }

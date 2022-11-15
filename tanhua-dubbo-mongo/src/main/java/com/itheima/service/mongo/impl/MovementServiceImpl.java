@@ -24,6 +24,8 @@ public class MovementServiceImpl implements MovementService {
 
     @Autowired
     private RedisIdService redisIdService;
+    @Autowired
+    private MovementAsyncService movementAsyncService;
 
     @Override
     public void publishMovement(Movement movement) {
@@ -38,27 +40,11 @@ public class MovementServiceImpl implements MovementService {
         myMovement.setPublishId(movement.getId()); // 动态id
         myMovement.setCreated(movement.getCreated());// 发布时间
         // 2-2 mongo保存
-        mongoTemplate.save(myMovement, ConstantUtil.MOVEMENT_MINE+movement.getUserId()); // movement_mine_1
-        // 3.查询好友
-        // 3-1 构建条件
-        Query query = new Query(Criteria.where("userId").is(movement.getUserId()));
-        // 3-2 查询
-        List<Friend> friendList = mongoTemplate.find(query, Friend.class);
-        // 3-3 遍历好友
-        if (CollectionUtil.isNotEmpty(friendList)) {
-            for (Friend friend : friendList) {
-                // 3-4 获取好友id
-                Long friendId = friend.getFriendId();
-                // 4. 保存到好友动态表
-                // 4-1 封装实体
-                FriendMovement friendMovement = new FriendMovement();
-                friendMovement.setUserId(movement.getUserId()); // 动态发布人id
-                friendMovement.setPublishId(movement.getId()); // 动态id
-                friendMovement.setCreated(movement.getCreated());// 发布时间
-                // 4-2 mongo保存
-                mongoTemplate.save(friendMovement, ConstantUtil.MOVEMENT_FRIEND+friendId); // movement_friend_2
-            }
-        }
+        mongoTemplate.save(myMovement, ConstantUtil.MOVEMENT_MINE + movement.getUserId()); // movement_mine_1
+
+        // 3.调用多线程技术（异步）
+        movementAsyncService.saveMovementFriend(movement);
+
     }
 
     // 查询我的动态

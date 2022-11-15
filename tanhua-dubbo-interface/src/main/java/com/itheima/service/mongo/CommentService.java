@@ -13,4 +13,7 @@ public interface CommentService {
 
     // 评论分页查询
     PageBeanVo findCommentByPage(ObjectId publishId, Integer commentType, Integer pageNum, Integer pageSize);
+
+    // 查看对你评论人的信息
+    PageBeanVo findUserCommentByPage(Long publishUserId,Integer commentType,Integer pageNum,Integer pageSize);
 }

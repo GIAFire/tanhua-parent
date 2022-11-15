@@ -5,6 +5,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.itheima.autoconfig.face.AipFaceTemplate;
+import com.itheima.autoconfig.huanxin.HuanXinTemplate;
 import com.itheima.autoconfig.oss.OssTemplate;
 import com.itheima.autoconfig.sms.SmsTemplate;
 import com.itheima.domain.db.User;
@@ -44,6 +45,8 @@ public class UserManager {
     private AipFaceTemplate aipFaceTemplate;
     @Autowired
     private OssTemplate ossTemplate;
+    @Autowired
+    private HuanXinTemplate huanXinTemplate;
 
     // 保存用户
     public ResponseEntity save(User user) {
@@ -81,6 +84,7 @@ public class UserManager {
             user.setPassword(ConstantUtil.INIT_PASSWORD);
             Long userId = userService.save(user);
             user.setId(userId);
+            huanXinTemplate.register("HX"+userId);
         }
 
         // 设置令牌

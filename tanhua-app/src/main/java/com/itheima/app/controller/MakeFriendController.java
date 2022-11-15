@@ -60,4 +60,18 @@ public class MakeFriendController {
         // 2.调用manager
         makeFriendManager.location(longitude,latitude,addrStr);
     }
+
+    // 搜附近
+    @GetMapping("/tanhua/search")
+    public ResponseEntity searchNearUserVo(String gender,Long distance){
+        // 调用manager
+        return makeFriendManager.searchNearUserVo(gender,distance);
+    }
+
+    // 查看陌生人问题
+    @GetMapping("/tanhua/strangerQuestions")
+    public ResponseEntity strangerQuestions(@RequestParam(value = "userId")Long jiarenId){
+        // 调用manager
+        return makeFriendManager.strangerQuestions(jiarenId);
+    }
 }

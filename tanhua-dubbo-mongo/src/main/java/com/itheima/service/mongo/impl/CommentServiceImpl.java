@@ -131,4 +131,20 @@ public class CommentServiceImpl implements CommentService {
         // 4.返回并封装分页对象
         return new PageBeanVo(pageNum, pageSize, counts, commentList);
     }
+
+    // 查看对你评论人的信息
+    @Override
+    public PageBeanVo findUserCommentByPage(Long publishUserId, Integer commentType, Integer pageNum, Integer pageSize) {
+        // 1.构建条件
+        Query query = new Query(
+                Criteria.where("publishUserId").is(publishUserId).and("commentType").is(commentType)
+        ).with(Sort.by(Sort.Order.desc("created")))
+                .skip((pageNum - 1) * pageSize).limit(pageSize);
+
+        // 2.查list
+        List<Comment> commentList = mongoTemplate.find(query, Comment.class);
+
+        // 3.返回并封装分页对象
+        return new PageBeanVo(pageNum, pageSize, 0L, commentList);
+    }
 }
