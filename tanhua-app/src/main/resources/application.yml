@@ -25,26 +25,26 @@ dubbo:    #dubbo配置
 
 tanhua:
   sms:
-    access-key: LTAI5t6rL4crEU47uX483JKz
-    secret: ZCxHdtyE8W203OYG9FqAiOIQAxJIMI
-    sign-name: 黑马Ys
-    template-code: SMS_199773239
+    access-key: LTAI5t6rL4crEU47uX483JKzcs
+    secret: ZCxHdtyE8W203OYG9FqAiOIQAxJIMIcs
+    sign-name: 黑马Yscs
+    template-code: SMS_199773239cs
   oss:
-    accessKey: LTAI5tNjQKmXmYQLV8dtDmxg
-    secret: cKpebYNdwy7Q3bULl6WODqWuJ6V5z3
-    endpoint: oss-cn-beijing.aliyuncs.com
-    bucketName: ttmall-file
-    url: ttmall-file.oss-cn-beijing.aliyuncs.com
+    accessKey: LTAI5tNjQKmXmYQLV8dtDmxgcs
+    secret: cKpebYNdwy7Q3bULl6WODqWuJ6V5z3cs
+    endpoint: oss-cn-beijing.aliyuncs.comcs
+    bucketName: ttmall-filecs
+    url: ttmall-file.oss-cn-beijing.aliyuncs.comcs
   aip:
-    appId: 27962994
-    apiKey: Cc2ROcO9yBttZy41KlDiiNR5
-    secretKey: wDNF4SPPAHF2a95G7YpXGffhPhajwdcq
+    appId: 27962994cs
+    apiKey: Cc2ROcO9yBttZy41KlDiiNR5cs
+    secretKey: wDNF4SPPAHF2a95G7YpXGffhPhajwdcqcs
   huanxin:
-    url: http://a1.easemob.com/
-    orgName: 1130221108109766
-    appName: tanhua
-    clientId: YXA6d5dEtSumQF6muJfxFNjiwA
-    clientSecret: YXA6GY88D8VxnJDHcUxM-j0OJzIoTXI
+    url: http://a1.easemob.com/cs
+    orgName: 1130221108109766cs
+    appName: tanhuacs
+    clientId: YXA6d5dEtSumQF6muJfxFNjiwAcs
+    clientSecret: YXA6GY88D8VxnJDHcUxM-j0OJzIoTXIcs
 
 fdfs:
   so-timeout: 1500 #读取超时
