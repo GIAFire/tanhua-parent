@@ -33,6 +33,7 @@ public class VideoController {
         Long userId = UserHolder.get().getId();
         // 调用manager
         videoManager.publishVideo(userId,videoThumbnail, videoFile);
+        System.out.println("视频上传成功");
     }
 
     // 关注用户

@@ -135,4 +135,43 @@ public class MovementServiceImpl implements MovementService {
     public Movement findById(ObjectId id) {
         return mongoTemplate.findById(id, Movement.class);
     }
+
+    // 后台动态查询
+    @Override
+    public PageBeanVo findMovementByPage(Long userId, Integer state, Integer pageNum, Integer pageSize) {
+        // 1.构建条件
+        Query query = new Query()
+                .with(Sort.by(Sort.Order.desc("created")))
+                .skip((pageNum-1)*pageSize).limit(pageSize);
+        // 动态条件 userId
+        if (userId!=null) {
+            query.addCriteria(Criteria.where("userId").is(userId));
+        }
+        // 动态state
+        if (state!=null) {
+            query.addCriteria(Criteria.where("state").is(state));
+        }
+        // 2.查询list
+        List<Movement> movementList = mongoTemplate.find(query, Movement.class);
+        // 3.查询counts
+        Query query2 = new Query()
+                .with(Sort.by(Sort.Order.desc("created")));
+        // 动态条件 userId
+        if (userId!=null) {
+            query2.addCriteria(Criteria.where("userId").is(userId));
+        }
+        // 动态state
+        if (state!=null) {
+            query2.addCriteria(Criteria.where("state").is(state));
+        }
+        long counts = mongoTemplate.count(query2, Movement.class);
+        // 4.封装并返回分页对象
+        return new PageBeanVo(pageNum, pageSize, counts, movementList);
+    }
+
+    // 更新动态审核
+    @Override
+    public void updateMovement(Movement movement) {
+        mongoTemplate.save(movement);
+    }
 }

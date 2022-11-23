@@ -1,0 +1,32 @@
+server: #服务端口
+  port: 18083
+spring:
+  application:
+    name: tanhua-admin
+  redis:  #redis配置
+    port: 6379
+    host: 192.168.211.160
+    database: 2 # 指定库
+  cloud:  #nacos配置
+    nacos:
+      discovery:
+        server-addr: 192.168.211.160:8848
+  rabbitmq:
+    host: 192.168.211.160
+    port: 5672
+    virtual-host: /tanhua
+    username: tanhua
+    password: 123456
+dubbo:    #dubbo配置
+  registry:
+    address: spring-cloud://localhost
+  consumer:
+    check: false
+  protocols:
+    dubbo:
+      port: 20883
+tanhua:
+  green:
+    accessKeyID: LTAI4GKgob9vZ53k2SZdyAC7
+    accessKeySecret: LHLBvXmILRoyw0niRSBuXBZewQ30la
+    scenes: porn,terrorism #色情，暴力

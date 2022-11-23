@@ -4,6 +4,8 @@ import com.itheima.autoconfig.face.AipFaceProperties;
 import com.itheima.autoconfig.face.AipFaceTemplate;
 import com.itheima.autoconfig.huanxin.HuanXinProperties;
 import com.itheima.autoconfig.huanxin.HuanXinTemplate;
+import com.itheima.autoconfig.lvwang.AliyunGreenTemplate;
+import com.itheima.autoconfig.lvwang.GreenProperties;
 import com.itheima.autoconfig.oss.OssProperties;
 import com.itheima.autoconfig.oss.OssTemplate;
 import com.itheima.autoconfig.sms.SmsProperties;
@@ -17,9 +19,15 @@ import org.springframework.context.annotation.Configuration;
         SmsProperties.class,//加载短信配置
         OssProperties.class,//加载oss配置
         AipFaceProperties.class,//加载人脸识别配置
-        HuanXinProperties.class//加载环信配置
+        HuanXinProperties.class,//加载环信配置
+        GreenProperties.class
 })
 public class TanhuaAutoConfiguration {
+
+    @Bean
+    public AliyunGreenTemplate aliyunGreenTemplate(GreenProperties properties) {
+        return new AliyunGreenTemplate(properties);
+    }
 
     @Bean
     public SmsTemplate smsTemplate(SmsProperties smsProperties) {

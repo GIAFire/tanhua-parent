@@ -13,7 +13,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document("recomment_movement_score")
-public class MovementScore {
+public class MovementScore implements Serializable{
 
     private ObjectId id;
     private Long userId;// 用户id

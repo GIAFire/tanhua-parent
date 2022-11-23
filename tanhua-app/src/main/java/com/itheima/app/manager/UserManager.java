@@ -1,6 +1,7 @@
 package com.itheima.app.manager;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
@@ -8,6 +9,7 @@ import com.itheima.autoconfig.face.AipFaceTemplate;
 import com.itheima.autoconfig.huanxin.HuanXinTemplate;
 import com.itheima.autoconfig.oss.OssTemplate;
 import com.itheima.autoconfig.sms.SmsTemplate;
+import com.itheima.domain.db.Log;
 import com.itheima.domain.db.User;
 import com.itheima.domain.db.UserInfo;
 import com.itheima.service.db.UserInfoService;
@@ -18,6 +20,7 @@ import com.itheima.vo.ErrorResult;
 import com.itheima.vo.UserInfoVo;
 import io.netty.util.internal.StringUtil;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -27,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,35 +72,62 @@ public class UserManager {
         return code;
     }
 
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    // 注册、登录
     public ResponseEntity loginVerification(String phone, String verificationCode) {
+        // 1.取出redis验证码
         String codeFromRedis = stringRedisTemplate.opsForValue().get(ConstantUtil.SMS_CODE + phone);
+        // 2.比对验证码
         if (!StrUtil.equals(verificationCode, codeFromRedis)) {
             return ResponseEntity.status(500).body(ErrorResult.loginError());
         }
+        // 3.根据手机号查询
         User user = userService.findByPhone(phone);
         Boolean isNew;
-        if (user != null) {
+        String type;
+        if (user != null) { // 老用户
             isNew = false;
-        } else {
+            type = "0101";
+        } else { // 新用户
+            type = "0102";
             isNew = true;
+            // 保存新用户
             user = new User();
             user.setMobile(phone);
             user.setPassword(ConstantUtil.INIT_PASSWORD);
             Long userId = userService.save(user);
             user.setId(userId);
-            huanXinTemplate.register("HX"+userId);
+            // 向环信注册此用户
+            huanXinTemplate.register("HX" + userId);
         }
-
-        // 设置令牌
+        // 4.jwt制作令牌
         user.setPassword(null);
         Map<String, Object> claims = BeanUtil.beanToMap(user);
         String token = JwtUtil.createToken(claims);
 
-        // 存入redis
+        // 5.向redis存令牌
         String json = JSON.toJSONString(user);
         stringRedisTemplate.opsForValue().set(ConstantUtil.USER_TOKEN + token, json, Duration.ofDays(7));
 
-        HashMap<String, Object> map = new HashMap<>();
+        // 将redis中验证码
+        stringRedisTemplate.delete(ConstantUtil.SMS_CODE + phone);
+
+        //-------------------------
+        // 封装log对象
+        Log log = new Log();
+        log.setUserId(user.getId());// 用户id
+        log.setLogTime(DateUtil.formatDate(new Date())); // 操作时间  2022-2-24
+        log.setPlace("北京顺义黑马程序员"); // 地点
+        log.setEquipment("华为Mate40Pro"); // 设备
+        log.setType(type); //  类型
+        // 发送mq消息
+        rabbitTemplate.convertAndSend("tanhua.log", log);
+        //-------------------------
+
+        // 6.封装返回结果
+        Map<String, Object> map = new HashMap<>();
         map.put("token", token);
         map.put("isNew", isNew);
         return ResponseEntity.ok(map);

@@ -16,6 +16,9 @@
         <module>tanhua-dubbo-mongo</module>
         <module>tanhua-autoconfig</module>
         <module>tanhua-app</module>
+        <module>tanhua-admin</module>
+        <module>tanhua-recommend</module>
+        <module>tanhua-gateway</module>
     </modules>
 
     <properties>

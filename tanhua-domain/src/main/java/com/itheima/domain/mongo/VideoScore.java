@@ -12,7 +12,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document("recomment_video_score")
-public class VideoScore {
+public class VideoScore implements Serializable{
 
     private ObjectId id;
     private Long userId;// 用户id

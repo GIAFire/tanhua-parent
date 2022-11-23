@@ -20,4 +20,10 @@ public interface MovementService {
 
     // 根据id查询
     Movement findById(ObjectId id);
+
+    // 后台动态查询
+    PageBeanVo findMovementByPage(Long userId, Integer state, Integer pageNum, Integer pageSize);
+
+    // 更新动态审核
+    void updateMovement(Movement movement);
 }

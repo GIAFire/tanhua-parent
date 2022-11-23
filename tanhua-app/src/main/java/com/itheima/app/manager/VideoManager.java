@@ -46,6 +46,8 @@ public class VideoManager {
 
     @Autowired
     private FdfsWebServer webServer;
+    @Autowired
+    private MQVideoManager mqVideoManager;
 
     // 查询推荐视频
     public ResponseEntity findRecommendVideoVoByPage(Long userId, Integer pageNum, Integer pageSize) {
@@ -93,6 +95,8 @@ public class VideoManager {
         video.setVideoUrl(videoUrl); // 视频
         //  4.调用rpc保存
         videoService.publishVideo(video);
+        // 发送动态日志行为
+        mqVideoManager.sendMovement(userId,video.getId() , MQVideoManager.VIDEO_PUBLISH);
     }
 
 

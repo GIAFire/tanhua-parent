@@ -17,6 +17,7 @@ import com.itheima.vo.MovementVo;
 import com.itheima.vo.PageBeanVo;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.bson.types.ObjectId;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,11 @@ public class MovementManager {
     @Autowired
     private OssTemplate ossTemplate;
 
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private MQMovementManager mqMovementManager;
+
     // 发布动态
     public void publishMovement(Movement movement, MultipartFile[] imageContent) throws IOException {
         // 1.获取线程内userId
@@ -56,11 +62,17 @@ public class MovementManager {
         movement.setId(ObjectId.get()); // java工具生成动态id（后面要用）
         movement.setUserId(userId); // 发布人id
         movement.setMedias(medias);// 动态图片地址
-        movement.setState(1); // TODO 暂时写1，后期会用阿里云内容审核完善
+        movement.setState(0); // 未审核
         movement.setCreated(System.currentTimeMillis());// 发布时间
         movement.setSeeType(1); // 目前探花1.0 公开所有
         // 4.调用rpc发布
         movementService.publishMovement(movement);
+
+        // 5.发送mq消息
+        rabbitTemplate.convertAndSend("tanhua.movement.state", movement.getId().toHexString());
+
+        // 发送动态日志行为
+        mqMovementManager.sendMovement(userId,movement.getId() , MQMovementManager.MOVEMENT_PUBLISH);
 
     }
 
@@ -196,6 +208,8 @@ public class MovementManager {
         // 5. 向redis中存储标记  movement_like:{userId}_{publishId} = 1
         stringRedisTemplate.opsForValue().set(StrUtil.format(ConstantUtil.MOVEMENT_LIKE, userId, publishId), "1");
 
+        // 发送动态日志行为
+        mqMovementManager.sendMovement(userId,new ObjectId(publishId), MQMovementManager.MOVEMENT_LIKE);
         // 6.返回点赞数量
         return ResponseEntity.ok(likeCount);
     }
@@ -208,6 +222,8 @@ public class MovementManager {
         Integer likeCount = commentService.removeComment(new ObjectId(publishId), userId, 1);
         // 3.从reids中删除点赞标记
         stringRedisTemplate.delete(StrUtil.format(ConstantUtil.MOVEMENT_LIKE, userId, publishId));
+        // 发送动态日志行为
+        mqMovementManager.sendMovement(userId,new ObjectId(publishId), MQMovementManager.MOVEMENT_DISLIKE);
         // 4.返回点赞数量
         return ResponseEntity.ok(likeCount);
     }
@@ -229,6 +245,8 @@ public class MovementManager {
         Integer loveCount = commentService.saveComment(comment);
         // 5.向redis中存储喜欢标记
         stringRedisTemplate.opsForValue().set(StrUtil.format(ConstantUtil.MOVEMENT_LOVE, userId, publishId), "1");
+        // 发送动态日志行为
+        mqMovementManager.sendMovement(userId,new ObjectId(publishId), MQMovementManager.MOVEMENT_LOVE);
         // 6.返回喜欢数量
         return ResponseEntity.ok(loveCount);
     }
@@ -241,6 +259,8 @@ public class MovementManager {
         Integer loveCount = commentService.removeComment(new ObjectId(publishId), userId, 3);
         // 3.从redis中删除喜欢标记
         stringRedisTemplate.delete(StrUtil.format(ConstantUtil.MOVEMENT_LOVE, userId, publishId));
+        // 发送动态日志行为
+        mqMovementManager.sendMovement(userId,new ObjectId(publishId), MQMovementManager.MOVEMENT_DISLOVE);
         // 4.返回喜欢数量
         return ResponseEntity.ok(loveCount);
     }

@@ -2,12 +2,14 @@ package com.itheima.service.mongo.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.RandomUtil;
+import com.itheima.domain.mongo.Movement;
 import com.itheima.domain.mongo.RecommendVideo;
 import com.itheima.domain.mongo.Video;
 import com.itheima.service.mongo.VideoService;
 import com.itheima.util.ConstantUtil;
 import com.itheima.vo.PageBeanVo;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.bson.types.ObjectId;
 import org.checkerframework.checker.nullness.qual.AssertNonNullIfNonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -67,5 +69,10 @@ public class VideoServiceImpl implements VideoService {
         recommendVideo.setScore(RandomUtil.randomDouble(80, 99));// 推荐得分
         mongoTemplate.save(recommendVideo);
 
+    }
+
+    @Override
+    public Video findById(ObjectId id) {
+        return mongoTemplate.findById(id, Video.class);
     }
 }

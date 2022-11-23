@@ -1,0 +1,16 @@
+server:
+  port: 18082
+
+spring:
+  rabbitmq:
+    host: 192.168.211.160
+    port: 5672
+    virtual-host: /tanhua
+    username: tanhua
+    password: 123456
+  redis:
+    host: 192.168.211.160
+    port: 6379
+  data:
+    mongodb:
+      uri: mongodb://192.168.211.160:27017/tanhua
